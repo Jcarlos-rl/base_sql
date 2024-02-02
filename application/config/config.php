@@ -6,9 +6,10 @@
     define('site_name', 'Base Framework');       //Nombre del sitio
 
     //Configuración de acceso a la base de datos MongoDB
-    define ('DB_HOST', '192.168.3.83');
-    define ('DB_USER', '');
-    define ('DB_PASSWORD', '');
+    //define ('DB_HOST', 'DESKTOP-KDR5KU0');
+    define ('DB_HOST', '192.168.3.60,1433');
+    define ('DB_USER', 'sa');
+    define ('DB_PASSWORD', '181213');
     define ('DB_NAME', 'prueba');
 
 

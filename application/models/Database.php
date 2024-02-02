@@ -39,4 +39,12 @@ class Database
 
         return $result;
     }
+
+    public function fetchArray($result){
+        return sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+    }
+
+    public function close(){
+        sqlsrv_close($this->conn);
+    }
 }

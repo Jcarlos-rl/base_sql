@@ -10,9 +10,13 @@
         
         public function index(){
 
-            $query = "SELECT * FROM User";
-            $query = $this->database->query($query);
-            echo json_encode($query);
+            $query = "SELECT * FROM Users";
+            $result = $this->database->query($query);
+
+            $data = $this->database->fetchArray($result);
+            $this->database->close();
+
+            var_dump($data);
             return;
             $data = [
             ];
