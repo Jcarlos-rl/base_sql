@@ -1,7 +1,7 @@
 <?php
     define('app_path', dirname(dirname(__FILE__)));     //Ruta de la app
     define('BASE_PATH', realpath(dirname(__FILE__) . '/../..').'/'); //BASE_PATH del proyecto
-    define('base_url', 'http://localhost/miniframework/'); //Ruta de la url
+    define('base_url', 'http://localhost/sql/'); //Ruta de la url
 
     define('site_name', 'Base Framework');       //Nombre del sitio
 

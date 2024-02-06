@@ -1,0 +1,17 @@
+{
+    "name": "juancarlosromerolorenzo/public",
+    "require": {
+        "phpoffice/phpspreadsheet": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Juancarlosromerolorenzo\\Public\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jcarlos-rl",
+            "email": "carlos_-619@hotmail.com"
+        }
+    ]
+}
