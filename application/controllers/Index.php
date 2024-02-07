@@ -101,7 +101,6 @@
                 }
 
                 $num_servicio = $sqlQuery[0]['num_servicio'];
-                $folioSeguimiento = $folio_seguimiento+1;
 
                 $cadenaNombre = explode(',',$sqlQuery[0]['nombreC']);
                 $nombre = trim(str_replace('"','',str_replace('nombre: ','',$cadenaNombre[0])));
@@ -112,7 +111,7 @@
 
                 $json = [
                     "token" => "309F1E78-E02E-44D7-BADF-200521D1E716",
-                    "folioSeguimiento" => $folioSeguimiento,
+                    "folioSeguimiento" => $folio_seguimiento+1,
                     "num_servicio" => $num_servicio,
                     "nombre" => $nombre, 
                     "apaterno" => $apaterno, 
@@ -136,9 +135,20 @@
                     "variables" => $arr
                 ];
 
-                $jsons[] = $json;
+                $fetchJSON = $this->fetchJSON($json);
+
+                if(!$fetchJSON['status']){
+                    http_response_code(500);
+                    echo json_encode($fetchJSON['errorMessage']);
+                    return;
+                }
+
+                $file_save = $this->saveFileInDirectory($fetchJSON['data']['lineaCaptura'], $row['correo'], $fetchJSON['data']['ordenCobro']);
+
+                $data[$key] = $file_save;
             }
-            echo json_encode($jsons);
+
+            echo json_encode($data);
             return;
         }
 
@@ -360,11 +370,89 @@
             ];
 
             //return $database[rand(0, 2)];
-            return $database[1];
+            return $database[0];
         }
 
-        protected function responseJSON(){
-            
+        protected function fetchJSON($json){
+
+            $dummy_api = [
+                'servicio' => '1378 - COMPLEMENTARIAS POR DIFERENCIA RPP',
+                'folioSeguimiento' => '6002842569',
+                'lineaCaptura' => strval(rand()),
+                'fechaVencimiento' => '2024-06-30',
+                'montoTotal' => 150.0,
+                /* 'ordenCobro' => 'https://serviciospue.puebla.gob.mx/SialWsEpuebla/rest/recaudacion/ordenCobro/fc0b2eedb29e90396ce2a8cb8f3830ba', */
+                'ordenCobro' => base_url . 'public/media/files/formatoDePago.pdf',
+                'numFol' => 50804585,
+                'codigo' => 0,
+                'mensaje' => 'Tramite calculaco correctamente',
+                'tramites' => [
+                    [
+                        'ejercicio' => 2024,
+                        'conceptos' => [
+                            'cuenta' => '16324 - 0TF TNSCRTPCTON. CONsTTTucTON, nTVTSTON De crentTO GapaNTTa htpoTcapTa',
+                            'monto' => 150.0,
+                            'tarifa' => 'Numero de copias*150',
+                            'condicion_activacion' => 'RPP_16324==1',
+                            'codigo' => 0
+                        ]
+                    ]
+                ]
+            ];
+
+            $response = [
+                'status' => true,
+                'data' => $dummy_api
+            ];
+
+            return $response;
+
+            $api_url = 'https://serviciospue.puebla.gob.mx/SialWsEpuebla/rest/recaudacion/calculo/';
+
+            $options = [
+                CURLOPT_URL => $api_url,
+                CURLOPT_POST => true,
+                CURLOPT_POSTFIELDS => json_encode($json),
+                CURLOPT_HTTPHEADER => [
+                    'Content-Type: application/json',
+                    'Content-Length: ' . strlen(json_encode($json))
+                ]
+            ];
+
+            $curl = curl_init();
+            curl_setopt_array($curl, $options);
+            $response_api = curl_exec($curl);
+            curl_close($curl);
+
+            if ($response_api === false) {
+                $response = [
+                    'status' => false,
+                    'errorMessage' => curl_error($curl)
+                ];
+            } else {
+                $response = [
+                    'status' => true,
+                    'data' => $response_api
+                ];
+            }
+
+            return $response;
+        }
+
+        protected function saveFileInDirectory($lineaCaptura, $email, $ordenCobro){
+            $date = Date('d-m-Y');
+            $path = BASE_PATH . 'public/media/documentos/' . $date . '/' . $email;
+            $nameFile = $lineaCaptura . '.pdf';
+
+            if(!is_dir($path)){
+                mkdir($path, 0777, true);
+            }
+
+            if(file_put_contents($path . '/' . $nameFile, file_get_contents($ordenCobro))){
+                return true;
+            }else{
+                return false;
+            }
         }
     }
 ?>
